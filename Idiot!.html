@@ -1,185 +1,103 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>YAAI! Simulator</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-:root{--bg:#0f1720;--card:#111827;--muted:#9aa4b2;--accent:#0ea5e9}
-body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;
-font-family:system-ui,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#071021 0%,#0b1220 100%);color:#fff;overflow:hidden;}
-.card{background:var(--card);padding:22px;border-radius:12px;box-shadow:0 10px 40px rgba(2,6,23,.6);width:420px;text-align:center;position:relative}
-h1{margin:0;font-size:20px}
-p{color:var(--muted);margin:10px 0 18px}
-.warning{color:#ef4444;font-weight:bold;margin-bottom:10px;}
-.controls{display:flex;gap:10px;justify-content:center}
-button{background:var(--accent);border:none;padding:10px 14px;border-radius:9px;color:white;font-weight:700;cursor:pointer}
-button.ghost{background:transparent;border:1px solid rgba(255,255,255,.06);color:var(--muted);font-weight:600}
-button.stop{background:#ef4444}
-#countdown{font-size:26px;color:#ffd166;margin-top:10px;display:none}
-small{color:#b6c0cc;display:block;margin-top:12px}
-</style>
+  <meta charset="utf-8">
+  <title>Idiot!</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body {
+      margin:0;
+      height:100vh;
+      background:#000 url('https://media1.tenor.com/m/9MVlipGuNioAAAAd/you-are-an-idiot.gif') center/cover no-repeat;
+      overflow:hidden;
+    }
+    #muteBtn {
+      position:fixed;
+      left:10px;
+      top:10px;
+      z-index:9999;
+      background:#0ea5e9;
+      border:none;
+      padding:8px 12px;
+      border-radius:8px;
+      color:white;
+      font-weight:700;
+      cursor:pointer;
+    }
+  </style>
 </head>
 <body>
-<div class="card" id="mainCard">
-<h1>Start Simulation?</h1>
-<p class="warning">Use Task Manager if you want to stop the virus!</p>
-<p>Click <strong>Yes</strong> to start the harmless YAAI! simulator. It opens multiple popups showing the classic GIF. Close any popup and more appear.</p>
-<div class="controls">
-<button id="yes">Yes</button>
-<button id="no" class="ghost">No</button>
-<button id="stop" class="stop" style="display:none">Stop</button>
-</div>
-<div id="countdown">10</div>
-<small>Tip: allow popups & autoplay for this page if needed.</small>
-</div>
 
-<!-- Main page audio -->
-<audio id="mainAudio" src="https://www.myinstants.com/media/sounds/you-are-an-idiot-42738.mp3" loop></audio>
+  <button id="muteBtn">Mute</button>
+  <!-- replace with your actual mp3 filename -->
+  <audio id="mainAudio" src="you-are-an-idiot.mp3" loop autoplay></audio>
 
-<script>
-(() => {
-const GIF_NAME="https://media1.tenor.com/m/9MVlipGuNioAAAAd/you-are-an-idiot.gif";
-
-const yesBtn=document.getElementById('yes');
-const noBtn=document.getElementById('no');
-const stopBtn=document.getElementById('stop');
-const countdownEl=document.getElementById('countdown');
-const mainCard=document.getElementById('mainCard');
-const mainAudio=document.getElementById('mainAudio');
-
-let childWindows=[];
-let running=false;
-
-// Open popup window
-function openPopupWindow(){
-  const w=420,h=300;
-  const left=Math.floor(Math.random()*(screen.width-w));
-  const top=Math.floor(Math.random()*(screen.height-h));
-  const features=`width=${w},height=${h},left=${left},top=${top},resizable=no,menubar=no,toolbar=no,location=no,status=no`;
-  const win=window.open('','_blank',features);
-  if(!win){console.warn('Popup blocked'); return null;}
-  const popupHtml=`<!doctype html>
-  <html>
-  <head>
-  <meta charset="utf-8">
-  <title>YOU ARE AN IDIOT!</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>☺</text></svg>">
-  <style>
-  html,body{height:100%;margin:0;background:#000;color:#fff;font-family:system-ui,Arial,sans-serif}
-  .wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px}
-  .msg{font-size:26px;font-weight:800;text-align:center;margin-bottom:8px}
-  img{max-width:100%;max-height:60%;display:none;}
-  .btns{position:fixed;right:8px;top:6px}
-  .close{background:#e11;padding:6px 10px;border-radius:8px;border:0;color:#fff;cursor:pointer}
-  </style>
-  </head>
-  <body>
-  <div class="wrap">
-  <div class="msg">YOU ARE AN IDIOT!</div>
-  <img id="yaaiGif" alt="YAAI GIF"/>
-  </div>
-  <div class="btns"><button class="close" id="closeBtn">Close</button></div>
   <script>
-  const img=document.getElementById('yaaiGif');
-  img.src="${GIF_NAME}";
-  img.onload=()=>{img.style.display='block';};
-  document.getElementById('closeBtn').addEventListener('click',()=>window.close());
-  window.addEventListener('beforeunload',function(e){
-    try{
-      if(window.opener&&!window.opener.closed&&typeof window.opener._popupClosed==='function'){
-        window.opener._popupClosed();
-      }
-    }catch(err){}
-    e.preventDefault();return false;
-  });
-  let dirX=(Math.random()<0.5)?1:-1;
-  let dirY=(Math.random()<0.5)?1:-1;
-  setInterval(()=>{
-    try{window.moveBy(dirX*40,dirY*30);}catch(e){}
-    if(Math.random()<0.2) dirX*=-1;
-    if(Math.random()<0.2) dirY*=-1;
-  },100);
-  <\/script>
-  </body>
-  </html>`;
-  win.document.open();
-  win.document.write(popupHtml);
-  win.document.close();
-  childWindows.push(win);
-  return win;
-}
+  (() => {
+    const GIF_NAME="https://media1.tenor.com/m/9MVlipGuNioAAAAd/you-are-an-idiot.gif";
+    const mainAudio=document.getElementById('mainAudio');
+    const muteBtn=document.getElementById('muteBtn');
+    let childWindows=[];
 
-// Spawn 6 popups
-function spawnSix(){for(let i=0;i<6;i++) openPopupWindow();}
-
-// Called by popups when closed
-window._popupClosed=function(){if(running) spawnSix();}
-
-// Close everything
-function closeAll(){
-  childWindows.forEach(w=>{try{if(!w.closed) w.close();}catch(e){}});
-  childWindows=[];
-  if(mainAudio){try{mainAudio.pause(); mainAudio.currentTime=0;}catch(e){}}
-  running=false;
-}
-
-// Beep on start
-function userBeep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=880;g.gain.value=0.0001;o.start();g.gain.linearRampToValueAtTime(0.08,ctx.currentTime+0.02);g.gain.linearRampToValueAtTime(0.0001,ctx.currentTime+0.15);setTimeout(()=>{o.stop();ctx.close();},200);}catch(e){}}
-
-// Shake main card
-function shakeMainCard(){
-  let x=0,y=0,dx=6,dy=4;
-  return setInterval(()=>{x=(Math.random()-0.5)*dx;y=(Math.random()-0.5)*dy;mainCard.style.transform=`translate(${x}px,${y}px)`},50);
-}
-
-// Start simulation
-function startFlow(){
-  if(running) return;
-  running=true;
-  yesBtn.disabled=true; noBtn.disabled=true;
-  stopBtn.style.display='inline-block';
-  countdownEl.style.display='block';
-  let sec=3; countdownEl.textContent=sec;
-  userBeep();
-  try{
-    mainAudio.volume=0.6;
+    // ensure audio tries to play immediately
     mainAudio.play().catch(()=>{});
-  }catch(e){}
-  const shakeInterval=shakeMainCard();
-  const timer=setInterval(()=>{
-    sec--; countdownEl.textContent=sec;
-    if(sec<=0){clearInterval(timer);countdownEl.style.display='none';spawnSix();}
-  },1000);
-}
 
-// Stop button
-stopBtn.addEventListener('click',()=>{
-  closeAll();
-  stopBtn.style.display='none';
-  yesBtn.disabled=false;
-  noBtn.disabled=false;
-  mainCard.style.transform='';
-  try{mainAudio.pause(); mainAudio.currentTime=0;}catch(e){}
-});
+    function openPopupWindow(){
+      const w=420,h=300;
+      const left=Math.min(Math.max(Math.floor(Math.random()*(screen.width-w)),0),screen.width-w);
+      const top=Math.min(Math.max(Math.floor(Math.random()*(screen.height-h)),0),screen.height-h);
+      const features=`width=${w},height=${h},left=${left},top=${top},resizable=no,menubar=no,toolbar=no,location=no,status=no`;
+      const win=window.open('','_blank',features);
+      if(!win){console.warn('Popup blocked'); return null;}
 
-// Yes button
-yesBtn.addEventListener('click',()=>{startFlow();});
+      const popupHtml=`<!doctype html>
+      <html><head><meta charset="utf-8">
+      <title>☺</title>
+      <style>
+        html,body{height:100%;margin:0;background:#000}
+        img{width:100%;height:100%;display:block;}
+      </style>
+      </head><body>
+        <img src="${GIF_NAME}" alt="YAAI GIF"/>
+        <script>
+          let posX=Math.floor(Math.random()*(screen.width-420));
+          let posY=Math.floor(Math.random()*(screen.height-300));
+          let velX=(Math.random()<0.5?1:-1)*20;
+          let velY=(Math.random()<0.5?1:-1)*15;
 
-// No button
-noBtn.addEventListener('click',()=>{try{window.close();}catch(e){} });
+          let popupAudio=new Audio('you-are-an-idiot.mp3');
+          popupAudio.loop=true;
+          popupAudio.play().catch(()=>{});
 
-// Minimize main window on close
-window.addEventListener('beforeunload',function(e){
-  if(running){
-    try{window.resizeTo(100,100); window.moveTo(0,screen.height-100); window.blur(); childWindows.forEach(w=>{try{w.focus();}catch(e){}});}catch(err){}
-    e.preventDefault(); e.returnValue='';
-  }
-});
+          setInterval(()=>{
+            posX+=velX; posY+=velY;
+            if(posX<0||posX>screen.width-420) velX*=-1;
+            if(posY<0||posY>screen.height-300) velY*=-1;
+            try{window.moveTo(posX,posY);window.resizeTo(420,300);}catch(e){}
+          },50);
+        <\/script>
+      </body></html>`;
 
-// Clean up
-window.addEventListener('unload',()=>closeAll());
-})();
-</script>
+      win.document.open();
+      win.document.write(popupHtml);
+      win.document.close();
+      childWindows.push(win);
+      return win;
+    }
+
+    function spawnSix(){for(let i=0;i<6;i++) openPopupWindow();}
+
+    muteBtn.addEventListener('click',()=>{
+      mainAudio.muted=!mainAudio.muted;
+      muteBtn.textContent=mainAudio.muted?'Unmute':'Mute';
+      if(mainAudio.muted) spawnSix();
+    });
+
+    window.addEventListener('beforeunload',()=>childWindows.forEach(w=>{
+      try{if(!w.closed) w.close();}catch(e){}
+    }));
+  })();
+  </script>
+
 </body>
 </html>
